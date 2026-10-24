@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#174b3b">
+<title>Le tirage de Noël</title>
+<style>
+:root{--pine:#174b3b;--pine2:#22664e;--red:#b53a42;--cream:#fffaf0;--ink:#23352d;--muted:#6c7a72;--line:#e1e8df}
+*{box-sizing:border-box}body{margin:0;background:#f3f5ef;color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(135deg,#174b3b,#0d3025);color:white;text-align:center;padding:27px 16px 35px}
+.kicker{text-transform:uppercase;letter-spacing:.16em;font-size:.72rem;color:#e9d9a9;font-weight:750}
+h1{font-family:Georgia,serif;font-weight:500;font-size:clamp(2rem,7vw,3.2rem);margin:8px 0}
+header p{margin:0;color:#e0eee6}
+main{max-width:850px;margin:-14px auto 30px;padding:0 13px;position:relative}
+.card{background:white;border:1px solid var(--line);border-radius:18px;padding:19px;margin-bottom:14px;box-shadow:0 8px 24px #193c2a0a}
+h2{font-size:1.12rem;margin:0 0 12px;color:var(--pine)}p{line-height:1.5}.sub{color:var(--muted);font-size:.92rem;margin-top:-4px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:15px}.stat{background:#edf5ef;border-radius:12px;text-align:center;padding:12px 4px}.stat strong{display:block;font-size:1.3rem;color:var(--pine)}.stat span{font-size:.75rem;color:var(--muted)}
+label{display:block;font-size:.88rem;font-weight:650;margin:10px 0 5px}input,select{width:100%;padding:11px 12px;border:1px solid #d9e0d9;border-radius:10px;font:inherit;background:white;color:var(--ink)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.person{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 0;border-bottom:1px solid #edf0eb}.person:last-child{border-bottom:0}.idx{grid-column:1/-1;font-size:.77rem;color:var(--muted);font-weight:750}
+button{border:0;border-radius:11px;padding:12px 15px;font:inherit;font-weight:750;cursor:pointer}.primary{background:var(--pine);color:white}.secondary{background:#edf4ef;color:var(--pine)}button:disabled{opacity:.45;cursor:not-allowed}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.actions button{flex:1}
+.note{border-left:3px solid #d8ad59;background:#fff9e9;padding:11px 13px;border-radius:0 10px 10px 0;font-size:.88rem}
+.progress{height:9px;background:#e9eee8;border-radius:99px;overflow:hidden}.progress div{height:100%;background:var(--pine2);width:0;transition:width .25s}
+.checkrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #edf0eb}.checkrow input{width:20px;height:20px;accent-color:var(--pine)}
+.result{border:1px solid #dfe8df;border-radius:13px;padding:14px;background:#fbfdf9;margin:9px 0}.result h3{margin:0 0 9px;color:var(--pine);font-size:1rem}.chips{display:flex;gap:7px;flex-wrap:wrap}.chip{background:#edf5ef;border-radius:999px;padding:7px 10px;font-size:.9rem}
+.hidden{display:none!important}.small{font-size:.8rem;color:var(--muted)}.status{padding:10px 12px;border-radius:10px;background:#edf5ef;font-size:.9rem;margin:10px 0}.error{background:#fff0ef;color:#922c33}.success{background:#edf8ee;color:#215d36}.footer{text-align:center;color:var(--muted);font-size:.8rem;padding:10px 18px 28px}
+@media(max-width:560px){.grid,.person{grid-template-columns:1fr}.stats{gap:5px}.card{padding:15px}}
+</style>
+</head>
+<body>
+<header><div class="kicker">Édition familiale · Noël</div><h1>Le tirage de Noël 🎄</h1><p>Un peu de hasard, beaucoup de cadeaux.</p></header>
+<main>
+<section class="card">
+<div class="stats"><div class="stat"><strong>5</strong><span>couples</span></div><div class="stat"><strong>11</strong><span>enfants</span></div><div class="stat"><strong id="count">0/10</strong><span>validations</span></div></div>
+<h2>1. Votre groupe</h2>
+<p class="sub">Le responsable configure les prénoms une fois. Les modifications sont partagées avec tout le groupe tant que le tirage n'a pas eu lieu.</p>
+<label for="room">Code du groupe</label><div class="grid"><input id="room" maxlength="24" placeholder="ex. NOELFAMILLE" autocomplete="off"><button id="join" class="secondary">Ouvrir ce groupe</button></div>
+<label for="adult">Qui êtes-vous ?</label><select id="adult"><option value="">Choisir votre prénom…</option></select>
+<div id="status" class="status">Connectez la base de données pour démarrer.</div>
+<div id="admin" class="hidden">
+<h2 style="margin-top:18px">Prénoms des couples et des enfants</h2>
+<p class="small">Chaque couple saisit ses enfants, séparés par des virgules. Il faut exactement 11 enfants, tous avec des prénoms distincts.</p>
+<div id="couples"></div>
+<div class="actions"><button id="save" class="primary">Enregistrer les participants</button></div>
+</div>
+</section>
+<section class="card">
+<h2>2. Validez le lancement</h2><p class="sub">Chaque adulte doit valider depuis son propre téléphone. Le tirage démarre automatiquement après la 10e validation.</p>
+<div class="progress"><div id="bar"></div></div><div id="validations"></div>
+<div class="actions"><button id="confirm" class="primary" disabled>Je valide le lancement ✓</button></div>
+<p class="note">Une validation est associée au prénom sélectionné. Partagez le lien uniquement avec votre groupe familial.</p>
+</section>
+<section class="card hidden" id="resultsCard">
+<h2>🎉 Tous les résultats</h2><p class="sub">La répartition complète est visible par tous les membres du groupe.</p><div id="results"></div>
+<div class="actions"><button id="copy" class="secondary">Copier pour Messenger</button></div><p id="copyStatus" class="small"></p>
+</section>
+</main><div class="footer">Un tirage équitable, un Noël partagé ✨</div>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPABASE_URL = 'https://ccsmmarbxqvcorhmbmrx.supabase.co/rest/v1/';
+const SUPABASE_ANON_KEY = 'sb_publishable_0SrclIilrClvpUGesLdJHw_8tr5dujj';
+const configured = SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('COLLER_ICI') && !SUPABASE_ANON_KEY.includes('COLLER_ICI');
+const $=id=>document.getElementById(id);
+const defaultData=[
+ {name:'Couple 1',adults:['Adulte 1','Adulte 2'],kids:['Enfant 1','Enfant 2']},
+ {name:'Couple 2',adults:['Adulte 3','Adulte 4'],kids:['Enfant 3','Enfant 4']},
+ {name:'Couple 3',adults:['Adulte 5','Adulte 6'],kids:['Enfant 5','Enfant 6','Enfant 7']},
+ {name:'Couple 4',adults:['Adulte 7','Adulte 8'],kids:['Enfant 8','Enfant 9']},
+ {name:'Couple 5',adults:['Adulte 9','Adulte 10'],kids:['Enfant 10','Enfant 11']}
+];
+let db=null, group=null, state=null, channel=null, saving=false;
+function say(msg,type=''){ $('status').textContent=msg;$('status').className='status '+type; }
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function currentAdult(){return $('adult').value;}
+function adultList(s){return s.couples.flatMap((c,i)=>c.adults.map((name,j)=>({id:`${i}-${j}`,name,couple:i})));}
+function drawForm(){
+ $('couples').innerHTML=state.couples.map((c,i)=>`<div class="person"><div class="idx">COUPLE ${i+1}</div><div><label>Nom du couple</label><input data-t="name" data-i="${i}" value="${esc(c.name)}"></div><div><label>Enfants de ce couple</label><input data-t="kids" data-i="${i}" value="${esc(c.kids.join(', '))}"></div><div><label>Adulte 1</label><input data-t="a0" data-i="${i}" value="${esc(c.adults[0])}"></div><div><label>Adulte 2</label><input data-t="a1" data-i="${i}" value="${esc(c.adults[1])}"></div></div>`).join('');
+ $('couples').querySelectorAll('input').forEach(inp=>inp.addEventListener('change',()=>{const i=+inp.dataset.i;switch(inp.dataset.t){case'name':state.couples[i].name=inp.value.trim();break;case'kids':state.couples[i].kids=inp.value.split(',').map(x=>x.trim()).filter(Boolean);break;case'a0':state.couples[i].adults[0]=inp.value.trim();break;case'a1':state.couples[i].adults[1]=inp.value.trim();break;}}));
+}
+function drawAdults(){
+ const old=$('adult').value;
+ $('adult').innerHTML='<option value="">Choisir votre prénom…</option>'+adultList(state).map(a=>`<option value="${a.id}">${esc(a.name)} · ${esc(state.couples[a.couple].name)}</option>`).join('');
+ if(old && adultList(state).some(a=>a.id===old))$('adult').value=old;
+ $('admin').classList.toggle('hidden',!!state.results);
+}
+function render(){
+ if(!state)return;
+ drawAdults();
+ const adults=adultList(state), checks=state.validations||{};
+ const n=adults.filter(a=>checks[a.id]).length;
+ $('count').textContent=`${n}/10`; $('bar').style.width=`${n*10}%`;
+ $('validations').innerHTML=adults.map(a=>`<div class="checkrow"><span style="font-size:1.1rem">${checks[a.id]?'✅':'◯'}</span><span>${esc(a.name)} <span class="small">· ${esc(state.couples[a.couple].name)}</span></span><span style="margin-left:auto" class="small">${checks[a.id]?'Validé':'En attente'}</span></div>`).join('');
+ const chosen=currentAdult(); $('confirm').disabled=!chosen||!!checks[chosen]||!!state.results;
+ if(state.results){$('resultsCard').classList.remove('hidden');$('results').innerHTML=state.results.map(r=>`<div class="result"><h3>🎁 ${esc(r.couple)} <span class="small">· ${r.kids.length} enfant${r.kids.length>1?'s':''}</span></h3><div class="chips">${r.kids.map(k=>`<span class="chip">${esc(k)}</span>`).join('')}</div></div>`).join('');}
+ else $('resultsCard').classList.add('hidden');
+ $('save').disabled=!!state.results;
+}
+function validateData(couples){
+ const children=couples.flatMap((c,i)=>c.kids.map(name=>({name,owner:i})));
+ if(couples.length!==5||children.length!==11)throw new Error('Il faut exactement 5 couples et 11 enfants.');
+ if(couples.some(c=>!c.name||c.adults.some(a=>!a)||c.kids.length===0))throw new Error('Tous les noms des couples, adultes et enfants doivent être renseignés.');
+ const names=children.map(c=>c.name.toLocaleLowerCase('fr'));
+ if(new Set(names).size!==11)throw new Error('Les 11 prénoms d’enfants doivent être distincts.');
+ const adults=couples.flatMap(c=>c.adults).map(x=>x.toLocaleLowerCase('fr'));
+ if(adults.length!==10||new Set(adults).size!==10)throw new Error('Il faut 10 prénoms d’adultes distincts.');
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function generateResults(couples){
+ const children=couples.flatMap((c,i)=>c.kids.map(name=>({name,owner:i})));
+ const target=[2,2,2,2,2];target[Math.floor(Math.random()*5)]=3;
+ for(let attempt=0;attempt<2000;attempt++){
+  const pool=shuffle([...children]), result=Array.from({length:5},()=>[]), remaining=target.slice();
+  function assign(k){
+   if(k===pool.length)return true;
+   const child=pool[k], opts=shuffle([0,1,2,3,4].filter(i=>i!==child.owner&&remaining[i]>0).sort((a,b)=>remaining[b]-remaining[a]));
+   for(const i of opts){result[i].push(child.name);remaining[i]--;if(assign(k+1))return true;remaining[i]++;result[i].pop();}
+   return false;
+  }
+  if(assign(0))return result.map((kids,i)=>({couple:couples[i].name,kids}));
+ }
+ throw new Error('Impossible de trouver une répartition valide. Vérifiez les données.');
+}
+async function refresh(){
+ const {data,error}=await db.from('christmas_groups').select('*').eq('code',group).maybeSingle();
+ if(error)throw error;if(!data)throw new Error('Groupe introuvable. Vérifiez le code ou créez-le.');
+ state={id:data.id,code:data.code,couples:data.couples,validations:data.validations||{},results:data.results};
+ render();
+}
+async function setup(){
+ if(!configured){say('Configuration nécessaire : créez la base Supabase, puis collez son URL et sa clé publique dans le fichier HTML. Consultez LISEZ-MOI.txt.','error');return;}
+ db=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+ $('join').disabled=true;
+ try{
+  group=$('room').value.trim().toUpperCase();
+  if(!/^[A-Z0-9_-]{4,24}$/.test(group))throw new Error('Choisissez un code de groupe de 4 à 24 lettres ou chiffres.');
+  const {data,error}=await db.from('christmas_groups').select('*').eq('code',group).maybeSingle();
+  if(error)throw error;
+  if(data){state={id:data.id,code:data.code,couples:data.couples,validations:data.validations||{},results:data.results};}
+  else{
+   const fresh={code:group,couples:defaultData,validations:{},results:null};
+   const {data:created,error:insertError}=await db.from('christmas_groups').insert(fresh).select().single();
+   if(insertError)throw insertError;state={id:created.id,code:created.code,couples:created.couples,validations:created.validations||{},results:created.results};
+  }
+  render();$('adult').disabled=false;$('confirm').disabled=true;say('Groupe connecté. Partagez cette adresse et le code du groupe avec les 10 adultes.','success');
+  if(channel)await db.removeChannel(channel);
+  channel=db.channel('christmas-'+group).on('postgres_changes',{event:'*',schema:'public',table:'christmas_groups',filter:`code=eq.${group}`},()=>refresh().catch(e=>say(e.message,'error'))).subscribe();
+ }catch(e){say('Connexion impossible : '+e.message,'error');}
+ finally{$('join').disabled=false;}
+}
+$('join').onclick=setup;
+$('room').value=new URLSearchParams(location.search).get('g')||'NOELFAMILLE';
+$('adult').addEventListener('change',render);
+$('save').onclick=async()=>{
+ try{validateData(state.couples);saving=true;$('save').disabled=true;
+ const {error}=await db.from('christmas_groups').update({couples:state.couples}).eq('code',group).is('results',null);
+ if(error)throw error;await refresh();say('Participants enregistrés pour tout le groupe.','success');
+ }catch(e){say(e.message,'error');}finally{saving=false;if(state)$('save').disabled=!!state.results;}
+};
+$('confirm').onclick=async()=>{
+ const who=currentAdult();if(!who||state.validations[who])return;
+ try{
+  const next={...state.validations,[who]:true};
+  let results=state.results;
+  if(adultList(state).every(a=>next[a.id])&&!results){validateData(state.couples);results=generateResults(state.couples);}
+  const {error}=await db.from('christmas_groups').update({validations:next,results}).eq('code',group).is('results',null);
+  if(error)throw error;
+  await refresh();say(results?'Les 10 validations sont reçues : le tirage est terminé !':'Votre validation est enregistrée.','success');
+ }catch(e){say('Validation impossible : '+e.message,'error');}
+};
+$('copy').onclick=async()=>{if(!state?.results)return;const t='🎄 TIRAGE DE NOËL 🎁\n\n'+state.results.map(r=>r.couple+' : '+r.kids.join(', ')).join('\n')+'\n\nJoyeux Noël à tous !';try{await navigator.clipboard.writeText(t);$('copyStatus').textContent='Résultats copiés pour Messenger.';}catch(e){$('copyStatus').textContent=t;}};
+$('adult').disabled=true;$('confirm').disabled=true;$('save').disabled=true;
+</script>
+</body></html>
