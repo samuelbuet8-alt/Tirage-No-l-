@@ -63,11 +63,11 @@ const SUPABASE_ANON_KEY = 'sb_publishable_0SrclIilrClvpUGesLdJHw_8tr5dujj';
 const configured = SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('COLLER_ICI') && !SUPABASE_ANON_KEY.includes('COLLER_ICI');
 const $=id=>document.getElementById(id);
 const defaultData=[
- {name:'Couple 1',adults:['Adulte 1','Adulte 2'],kids:['Enfant 1','Enfant 2']},
- {name:'Couple 2',adults:['Adulte 3','Adulte 4'],kids:['Enfant 3','Enfant 4']},
- {name:'Couple 3',adults:['Adulte 5','Adulte 6'],kids:['Enfant 5','Enfant 6','Enfant 7']},
- {name:'Couple 4',adults:['Adulte 7','Adulte 8'],kids:['Enfant 8','Enfant 9']},
- {name:'Couple 5',adults:['Adulte 9','Adulte 10'],kids:['Enfant 10','Enfant 11']}
+ {name:'Couple 1',adults:['Sam','Claire'],kids:['Axel','Eliot']},
+ {name:'Couple 2',adults:['Anthony','Charlene],kids:['Ema','Clarysse','Lucas']},
+ {name:'Couple 3',adults:['Seb','Wendy'],kids:['Clara','Eytan','Johanna','Ayden',Sacha']},
+ {name:'Couple 4',adults:['Jeremy','Amandine'],kids:['Raphaël']},
+ {name:'Couple 5',adults:['Christian','Huguette']}
 ];
 let db=null, group=null, state=null, channel=null, saving=false;
 function say(msg,type=''){ $('status').textContent=msg;$('status').className='status '+type; }
