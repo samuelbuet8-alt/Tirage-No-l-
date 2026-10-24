@@ -86,6 +86,7 @@ function drawAdults(){
 }
 function render(){
  if(!state)return;
+ drawForm();
  drawAdults();
  const adults=adultList(state), checks=state.validations||{};
  const n=adults.filter(a=>checks[a.id]).length;
@@ -98,8 +99,7 @@ function render(){
 }
 function validateData(couples){
  const children=couples.flatMap((c,i)=>c.kids.map(name=>({name,owner:i})));
- if(couples.length!==5||children.length!==11)throw new Error('Il faut exactement 5 couples et 11 enfants.');
- if(couples.some(c=>!c.name||c.adults.some(a=>!a)||c.kids.length===0))throw new Error('Tous les noms des couples, adultes et enfants doivent être renseignés.');
+ if(couples.some(c=>!c.name||c.adults.some(a=>!a)))throw new Error('Tous les noms des couples et des adultes doivent être renseignés.');
  const names=children.map(c=>c.name.toLocaleLowerCase('fr'));
  if(new Set(names).size!==11)throw new Error('Les 11 prénoms d’enfants doivent être distincts.');
  const adults=couples.flatMap(c=>c.adults).map(x=>x.toLocaleLowerCase('fr'));
